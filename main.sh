@@ -9,14 +9,20 @@ check_disk_usage() {
         echo "Ошибка: Директория '$directory' не существует."
         return 1
     fi
+
+
+
     if [ -z "$threshold" ]; then
-        echo "Ошибка: Порог использования диска не указан. Порог установлен на 80."
-        if [ "$threshold" -gt 100 ] || [ "$threshold" -lt 0 ]; then
-            echo "Ошибка: Порог использования диска находится вне диапазона от 0 до 100. Порог установлен на 80."
-            return 1
-        fi
-        $threshold = 80
+        threshold=80
+        echo "Ошибка: Не указан порог использования диска. Поставлен на 80%"
+        return 1
     fi
+    if [ "$threshold" -lt 0 ] || [ "$threshold" -gt 100 ]; then
+        echo "Ошибка: Порог использования диска должен быть в диапазоне от 0 до 100."
+        return 1
+    fi
+
+
 
     disk_usage=$(echo $(df -h "$directory" | awk 'NR==2 {print $5}' | sed 's/%//'))
     if ! [[ "$disk_usage" =~ ^[0-9]+$ ]]; then
@@ -39,5 +45,4 @@ check_disk_usage() {
 
 
 
-# Вызов функции
 check_disk_usage "$1" "$2"
